@@ -1,49 +1,53 @@
 ﻿@page "/fetchdata"
-@using SmallEco.Shared
 @inject HttpClient Http
 
 <PageTitle>Weather forecast</PageTitle>
 
-<h1>Weather forecast</h1>
+<MudContainer>
+  <MudText Typo=Typo.h3>Weather forecast</MudText>
 
-<p>This component demonstrates fetching data from the server.</p>
+  <MudText Typo=Typo.body1>This component demonstrates fetching data from the server.</MudText>
 
-<MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleQuery>刷新</MudButton>
-<MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@(()=>{
-   throw new Exception("測試用例外！");
-})>刷新</MudButton>
+  <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleQuery>刷新</MudButton>
+  <MudButton Variant=Variant.Filled Color=Color.Error OnClick=@(()=>{
+             throw new Exception("測試例外！");
+             })>測試例外！</MudButton>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+  @if (f_loading)
+  {
+    <MudProgressLinear Color=Color.Info Class="my-1" Indeterminate />
+  }
+
+  @if (forecasts != null)
+  {
+    <MudSimpleTable>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Temp. (C)</th>
+          <th>Temp. (F)</th>
+          <th>Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var forecast in forecasts)
+        {
+          <tr>
+            <td>@forecast.Date.ToShortDateString()</td>
+            <td>@forecast.TemperatureC</td>
+            <td>@forecast.TemperatureF</td>
+            <td>@forecast.Summary</td>
+          </tr>
+        }
+      </tbody>
+    </MudSimpleTable>
+  }
+
+</MudContainer>
 
 @code {
-  private WeatherForecast[]? forecasts;
+  WeatherForecast[]? forecasts;
+  bool f_loading = false;
 
   protected override async Task OnInitializedAsync()
   {
@@ -52,6 +56,9 @@ else
 
   async Task HandleQuery()
   {
+    f_loading = true;
+    await Task.Delay(500);
     forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+    f_loading = false;
   }
 }
