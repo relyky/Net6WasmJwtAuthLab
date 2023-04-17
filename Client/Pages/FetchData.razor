@@ -8,6 +8,11 @@
 
 <p>This component demonstrates fetching data from the server.</p>
 
+<MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleQuery>刷新</MudButton>
+<MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@(()=>{
+   throw new Exception("測試用例外！");
+})>刷新</MudButton>
+
 @if (forecasts == null)
 {
     <p><em>Loading...</em></p>
@@ -38,10 +43,15 @@ else
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+  private WeatherForecast[]? forecasts;
 
-    protected override async Task OnInitializedAsync()
-    {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
-    }
+  protected override async Task OnInitializedAsync()
+  {
+    await HandleQuery();
+  }
+
+  async Task HandleQuery()
+  {
+    forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+  }
 }
