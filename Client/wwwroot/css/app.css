@@ -4,3 +4,46 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 */
+
+/*
+參考：[CSS:Indeterminate progress bar](https://csslayout.io/indeterminate-progress-bar/)
+<div class="app-loading-indeterminate">
+    <div class="app-loading-indeterminate__progress"></div>
+</div>
+*/
+.app-loading-indeterminate {
+  /* Color */
+  background-color: #d1d5db;
+  /* Rounded border */
+  border-radius: 9999px;
+  /* Size */
+  height: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-loading-indeterminate__progress {
+  /* Color */
+  background-color: #3b82f6;
+  /* Rounded border */
+  border-radius: 9999px;
+  /* Absolute position */
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  width: 50%;
+  /* Move the bar infinitely */
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-name: app-loading-indeterminate__animation;
+}
+
+@keyframes app-loading-indeterminate__animation {
+  from {
+    left: -50%;
+  }
+
+  to {
+    left: 100%;
+  }
+}
