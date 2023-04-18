@@ -1,0 +1,76 @@
+﻿@using SwagClient
+@page "/todo"
+@inject SwagClient.TodoApi bizApi
+
+<PageTitle>Counter</PageTitle>
+
+<MudContainer>
+  <MudText Typo=Typo.h3 GutterBottom>Todo list</MudText>
+
+  <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleQuery>刷新</MudButton>
+  <MudCheckBox @bind-Checked=f_testFail>測試邏輯失敗</MudCheckBox>
+
+  @if (!String.IsNullOrWhiteSpace(errMsg))
+  {
+    <MudAlert Severity=Severity.Error>
+      @errMsg
+    </MudAlert>
+  }
+
+  <MudTable Items=dataList Hover Striped Loading=@f_loading LoadingProgressColor=Color.Info>
+    <HeaderContent>
+      <MudTh>Sn</MudTh>
+      <MudTh>Description</MudTh>
+      <MudTh>Done</MudTh>
+      <MudTh>CreateDtm</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+      <MudTd DataLabel="Sn">@context.Sn</MudTd>
+      <MudTd DataLabel="Description">@context.Description</MudTd>
+      <MudTd DataLabel="Done">@context.Done</MudTd>
+      <MudTd DataLabel="CreateDtm">@context.CreateDtm</MudTd>
+    </RowTemplate>
+  </MudTable>
+  </MudContainer>
+
+  @code {
+  List<TodoDto> dataList = new();
+  bool f_loading = false;
+  bool f_testFail = false;
+  string errMsg = string.Empty;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await HandleQuery();
+  }
+
+  async Task HandleQuery()
+  {
+    try
+    {
+      f_loading = true;
+      errMsg = string.Empty;
+
+      await Task.Delay(500);
+
+      var qryArgs = new TodoQryAgs
+      {
+          Msg = f_testFail ? "測試邏輯失敗" : "今天天氣真好",
+          Amt = 999
+      };
+      dataList = await bizApi.QryDataListAsync(qryArgs);
+    }
+    catch (ApiException<ErrMsg> ex)
+    {
+      errMsg = $"ApiException: {ex.Result.Severity}-{ex.Result.Message}";
+    }
+    catch (Exception ex)
+    {
+      errMsg = "EXCEPTION: " + ex.Message;
+    }
+    finally
+    {
+      f_loading = false;
+    }
+  }
+}

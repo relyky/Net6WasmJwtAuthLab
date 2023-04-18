@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using SmallEco.Shared;
+using SmallEco.DTO;
 
 namespace SmallEco.Server.Controllers
 {
