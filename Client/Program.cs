@@ -19,7 +19,7 @@ foreach (var swagClientType in asm.GetTypes().Where(c => c.Namespace == "SwagCli
   {
     var http = provider.GetRequiredService<HttpClient>();
     var env = provider.GetRequiredService<IWebAssemblyHostEnvironment>();
-    var swagClient = Activator.CreateInstance(swagClientType, env.BaseAddress, http);
+    var swagClient = Activator.CreateInstance(swagClientType, baseUrl, http);
     return swagClient;
   });
 }
