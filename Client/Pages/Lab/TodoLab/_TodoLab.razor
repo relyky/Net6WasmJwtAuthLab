@@ -7,8 +7,10 @@
 <MudContainer>
   <MudText Typo=Typo.h3 GutterBottom>Todo list</MudText>
 
-  <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleQuery>刷新</MudButton>
-  <MudCheckBox @bind-Checked=f_testFail>測試邏輯失敗</MudCheckBox>
+  <MudToolBar>
+    <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleQuery>刷新</MudButton>
+    <MudCheckBox @bind-Checked=f_testFail Color=Color.Warning>測試邏輯失敗</MudCheckBox>
+  </MudToolBar>
 
   @if (!String.IsNullOrWhiteSpace(errMsg))
   {
@@ -17,7 +19,12 @@
     </MudAlert>
   }
 
-  <MudTable Items=dataList Hover Striped Loading=@f_loading LoadingProgressColor=Color.Info>
+  <MudTable Items=dataList Hover Striped Loading=@f_loading LoadingProgressColor=Color.Info >
+    <ToolBarContent>
+      <MudTextField @bind-Value=newTodoDesc Placeholder="工作內容描述" Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.TextFields IconSize="Size.Medium" Class="mt-0"></MudTextField>
+      <MudInput @bind-Value=newTodoDesc Variant=Variant.Outlined Margin=Margin.Dense />
+      <MudButton Variant=Variant.Outlined Color=Color.Primary>新增</MudButton>
+    </ToolBarContent>
     <HeaderContent>
       <MudTh>Sn</MudTh>
       <MudTh>Description</MudTh>
@@ -38,6 +45,7 @@
   bool f_loading = false;
   bool f_testFail = false;
   string errMsg = string.Empty;
+  string newTodoDesc = string.Empty;
 
   protected override async Task OnInitializedAsync()
   {
@@ -54,10 +62,10 @@
       await Task.Delay(500);
 
       var qryArgs = new TodoQryAgs
-      {
+        {
           Msg = f_testFail ? "測試邏輯失敗" : "今天天氣真好",
           Amt = 999
-      };
+        };
       dataList = await bizApi.QryDataListAsync(qryArgs);
     }
     catch (ApiException<ErrMsg> ex)
