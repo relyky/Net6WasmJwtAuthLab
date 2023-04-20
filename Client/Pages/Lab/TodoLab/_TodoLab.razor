@@ -1,6 +1,5 @@
-﻿@using SwagClient
-@page "/todo"
-@inject SwagClient.TodoApi bizApi
+﻿@page "/todo"
+@inject ITodoApi bizApi
 
 <PageTitle>Counter</PageTitle>
 
@@ -19,7 +18,7 @@
     </MudAlert>
   }
 
-  <MudTable Items=dataList Hover Striped Loading=@f_loading LoadingProgressColor=Color.Info >
+  <MudTable Items=dataList Hover Striped Loading=@f_loading LoadingProgressColor=Color.Info>
     <ToolBarContent>
       <MudTextField @bind-Value=newTodoDesc Placeholder="工作內容描述" Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.TextFields IconSize="Size.Medium" Class="mt-0"></MudTextField>
       <MudInput @bind-Value=newTodoDesc Variant=Variant.Outlined Margin=Margin.Dense />
@@ -66,11 +65,13 @@
           Msg = f_testFail ? "測試邏輯失敗" : "今天天氣真好",
           Amt = 999
         };
+
       dataList = await bizApi.QryDataListAsync(qryArgs);
     }
-    catch (ApiException<ErrMsg> ex)
+    catch (ApiException exx)
     {
-      errMsg = $"ApiException: {ex.Result.Severity}-{ex.Result.Message}";
+      var err = await exx.GetContentAsAsync<ErrMsg>();
+      errMsg = $"Refit.ApiException: {err.Severity}-{err.Message}";
     }
     catch (Exception ex)
     {

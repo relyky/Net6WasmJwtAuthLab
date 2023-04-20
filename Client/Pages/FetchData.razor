@@ -1,6 +1,5 @@
-﻿@using SwagClient
-@page "/fetchdata"
-@inject SwagClient.WeatherForecastApi bizApi
+﻿@page "/fetchdata"
+@inject IWeatherForecastApi bizApi
 
 <PageTitle>Weather forecast</PageTitle>
 
@@ -58,7 +57,7 @@
   async Task HandleQuery()
   {
     f_loading = true;
-    
+
     // await Task.Delay(500);
     dataList = await bizApi.WeatherForecastAsync();
     //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
