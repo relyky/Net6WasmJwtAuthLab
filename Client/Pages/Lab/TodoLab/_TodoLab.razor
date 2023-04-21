@@ -20,9 +20,10 @@
 
   <MudTable Items=dataList Hover Striped Loading=@f_loading LoadingProgressColor=Color.Info>
     <ToolBarContent>
-      <MudTextField @bind-Value=newTodoDesc Placeholder="工作內容描述" Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.TextFields IconSize="Size.Medium" Class="mt-0"></MudTextField>
-      <MudInput @bind-Value=newTodoDesc Variant=Variant.Outlined Margin=Margin.Dense />
-      <MudButton Variant=Variant.Outlined Color=Color.Primary>新增</MudButton>
+      <MudTextField @bind-Value=newTodoDesc Placeholder="工作內容描述"
+                    Variant=Variant.Outlined Margin=Margin.Dense FullWidth=true
+                    Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.TextFormat />
+      <MudButton Variant=Variant.Filled Color=Color.Primary Class="ml-2" OnClick=HandleAdd>新增</MudButton>
     </ToolBarContent>
     <HeaderContent>
       <MudTh>Sn</MudTh>
@@ -67,6 +68,34 @@
         };
 
       dataList = await bizApi.QryDataListAsync(qryArgs);
+    }
+    catch (ApiException exx)
+    {
+      var err = await exx.GetContentAsAsync<ErrMsg>();
+      errMsg = $"Refit.ApiException: {err.Severity}-{err.Message}";
+    }
+    catch (Exception ex)
+    {
+      errMsg = "EXCEPTION: " + ex.Message;
+    }
+    finally
+    {
+      f_loading = false;
+    }
+  }
+
+  async Task HandleAdd()
+  {
+    try
+    {
+      f_loading = true;
+      errMsg = string.Empty;
+
+      var newTodo = await bizApi.AddFormDataAsync(newTodoDesc);
+
+      // Success
+      dataList.Add(newTodo);
+      newTodoDesc = string.Empty;
     }
     catch (ApiException exx)
     {

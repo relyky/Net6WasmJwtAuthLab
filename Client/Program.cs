@@ -4,8 +4,6 @@ using MudBlazor.Services;
 using System.Reflection;
 using SmallEco.Client;
 using Refit;
-using SmallEco.Client.RefitClient;
-using System.Reflection.Metadata.Ecma335;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -25,10 +23,6 @@ foreach (var refitClientType in asm.GetTypes().Where(c => c.Namespace == "SmallE
 ////## 註冊 RefitClient API。 --- 手動一個一個註冊
 //builder.Services
 //    .AddRefitClient<ITodoApi>()
-//    .ConfigureHttpClient(http => http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
-//
-//builder.Services
-//    .AddRefitClient<IWeatherForecastApi>()
 //    .ConfigureHttpClient(http => http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 
 await builder.Build().RunAsync(); 

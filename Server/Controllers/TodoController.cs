@@ -8,7 +8,7 @@ namespace SmallEco.Server.Controllers;
 [ApiController]
 public class TodoController : ControllerBase
 {
-  List<TodoDto> _simsTodoRepo = new()
+  static List<TodoDto> _simsTodoRepo = new()
   {
       new() { Sn = 1, Description = "今天天氣真好", Done = false, CreateDtm = DateTime.Now.AddDays(-3) },
       new() { Sn = 2, Description = "下午去看電影", Done = false, CreateDtm = DateTime.Now.AddDays(-2) },
@@ -19,7 +19,7 @@ public class TodoController : ControllerBase
   ILogger<TodoController> _logger;
 
   public TodoController(ILogger<TodoController> logger)
-  { 
+  {
     _logger = logger;
   }
 
@@ -28,13 +28,37 @@ public class TodoController : ControllerBase
   [SwaggerResponse(400, type: typeof(ErrMsg))]
   public IActionResult QryDataList(TodoQryAgs args)
   {
-    if(args.Msg == "測試邏輯失敗")
+    if (args.Msg == "測試邏輯失敗")
     {
       return BadRequest(new ErrMsg("這是邏輯失敗！"));
     }
 
     return Ok(_simsTodoRepo);
   }
+
+  [HttpPost("[action]")]
+  [SwaggerResponse(200, type: typeof(TodoDto))]
+  [SwaggerResponse(400, type: typeof(ErrMsg))]
+  public IActionResult AddFormData(string newTodoDesc)
+  {
+    if (String.IsNullOrWhiteSpace(newTodoDesc))
+    {
+      return BadRequest(new ErrMsg("工作內容描述 為必填。"));
+    }
+
+    var newTodo = new TodoDto
+    {
+      Sn = _simsTodoRepo.Max(c => c.Sn + 1),
+      Description = newTodoDesc,
+      Done = false,
+      CreateDtm = DateTime.Now
+    };
+
+    _simsTodoRepo.Add(newTodo);
+
+    return Ok(newTodo);
+  }
+
 
   //// GET api/<TodoController>/5
   //[HttpGet("{id}")]
