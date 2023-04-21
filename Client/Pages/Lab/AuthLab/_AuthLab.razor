@@ -1,0 +1,71 @@
+﻿@using System.Net;
+@page "/auth"
+@inject IdentityApi bizApi
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+<PageTitle>Auth lab</PageTitle>
+
+<MudContainer>
+  <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleGenerateToken>Click me</MudButton>
+
+  @if(f_loading)
+  {
+    <MudProgressLinear Color=Color.Info Indeterminate /> 
+  }
+
+  @if (!String.IsNullOrWhiteSpace(errMsg))
+  {
+    <MudAlert Severity=Severity.Error>
+      @errMsg
+    </MudAlert>
+  }
+
+  <pre style="white-space:pre-line; overflow-wrap:break-word;">
+    @token
+  </pre>
+</MudContainer>
+
+@code {
+  string? token = null;
+  bool f_loading = false;
+  string errMsg = string.Empty;
+
+  async Task HandleGenerateToken()
+  {
+    try
+    {
+      f_loading = true;
+      errMsg = string.Empty;
+
+      var request = new TokenGenerationRequest
+        {
+          UserId = new Guid("12345678-1234-1234-1234-123456789012"),
+          Email = "nobody@mail.server",
+          CustomClaims = @"{'admin': false }"
+        };
+
+      token = await bizApi.GenerateTokenAsync(request);
+      await sessionStorage.SetItemAsync("token", token);
+    }
+    catch (ApiException ex)
+    {
+      if (ex.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var err = await ex.GetContentAsAsync<ErrMsg>();
+        errMsg = $"ApiException: {err.Severity}-{err.Message}";
+      }
+      else
+      {
+        errMsg = $"ApiException: {ex.Message}";
+      }
+    }
+    catch (Exception ex)
+    {
+      errMsg = "EXCEPTION: " + ex.Message;
+    }
+    finally
+    {
+      f_loading = false;
+    }
+  }
+}
