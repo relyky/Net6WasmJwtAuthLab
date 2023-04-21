@@ -1,4 +1,5 @@
 ﻿@page "/todo"
+@using System.Net;
 @inject ITodoApi bizApi
 
 <PageTitle>Counter</PageTitle>
@@ -47,10 +48,11 @@
   string errMsg = string.Empty;
   string newTodoDesc = string.Empty;
 
-  protected override async Task OnInitializedAsync()
-  {
-    await HandleQuery();
-  }
+  //protected override async Task OnInitializedAsync()
+  //{
+  //  await base.OnInitializedAsync();
+  //  await HandleQuery();
+  //}
 
   async Task HandleQuery()
   {
@@ -69,10 +71,17 @@
 
       dataList = await bizApi.QryDataListAsync(qryArgs);
     }
-    catch (ApiException exx)
+    catch (ApiException ex)
     {
-      var err = await exx.GetContentAsAsync<ErrMsg>();
-      errMsg = $"Refit.ApiException: {err.Severity}-{err.Message}";
+      if(ex.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var err = await ex.GetContentAsAsync<ErrMsg>();        
+        errMsg = $"ApiException: {err.Severity}-{err.Message}";
+      }
+      else
+      {
+        errMsg = $"ApiException: {ex.Message}";
+      }
     }
     catch (Exception ex)
     {

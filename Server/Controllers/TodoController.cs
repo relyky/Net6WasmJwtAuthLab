@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SmallEco.DTO;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmallEco.Server.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class TodoController : ControllerBase
