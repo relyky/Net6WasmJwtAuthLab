@@ -33,32 +33,36 @@
   string errMsg = string.Empty;
   bool isAdmin = false;
 
-  async Task HandleGenerateToken()
+  Task HandleGenerateToken() => CatchHandling(async Task () =>
+  {
+    var request = new TokenGenerationRequest
+      {
+        UserId = new Guid("12345678-1234-1234-1234-123456789012"),
+        Email = "nobody@mail.server",
+        CustomClaims = new(new KeyValuePair<string, string>[]
+      {
+            new("admin", isAdmin ? "true" : "false")
+          })
+      };
+
+    token = await bizApi.GenerateTokenAsync(request);
+    await sessionStorage.SetItemAsync("token", token);
+  });
+
+  async Task CatchHandling(Func<Task> action)
   {
     try
     {
       f_loading = true;
       errMsg = string.Empty;
-
-      var request = new TokenGenerationRequest
-        {
-          UserId = new Guid("12345678-1234-1234-1234-123456789012"),
-          Email = "nobody@mail.server",
-          CustomClaims = new(new KeyValuePair<string, string>[]
-          {
-            new("admin", isAdmin ? "true" : "false")
-          })
-        };
-
-      token = await bizApi.GenerateTokenAsync(request);
-      await sessionStorage.SetItemAsync("token", token);
+      await action();
     }
     catch (ApiException ex)
     {
       if (ex.StatusCode == HttpStatusCode.BadRequest)
       {
-        var err = await ex.GetContentAsAsync<ErrMsg>();
-        errMsg = $"ApiException: {err.Severity}-{err.Message}";
+        var msg = await ex.GetContentAsAsync<ErrMsg>();
+        errMsg = $"ApiException: {msg.Severity}-{msg.Message}";
       }
       else
       {

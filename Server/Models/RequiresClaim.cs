@@ -24,8 +24,11 @@ public class RequiresClaimAttribute : Attribute, IAuthorizationFilter
   }
 }
 
-public class IdentityData
+/// <summary>
+/// 登入與驗證相關屬性設定
+/// </summary>
+public class IdentityAttr
 {
-  public const string AdminUserClaimName = "admin";
-  public const string AdminUserPolicyName = "Admin";
+  public const string AdminClaimName = "admin";
+  public const string AdminPolicyName = "Admin";
 }

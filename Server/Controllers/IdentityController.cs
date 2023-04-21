@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 using SmallEco.DTO;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmallEco.Server.Controllers;
 
@@ -15,9 +16,6 @@ namespace SmallEco.Server.Controllers;
 [ApiController]
 public class IdentityController : ControllerBase
 {
-  //# resource
-  static readonly TimeSpan TokenLifetime = TimeSpan.FromHours(8);
-
   //# for injection
   ILogger<IdentityController> _logger;
   IConfiguration _config;
@@ -28,7 +26,10 @@ public class IdentityController : ControllerBase
     _config = config;
   }
 
+  /// <seealso cref="https://www.youtube.com/watch?v=mgeuh8k3I4g&t=2s&ab_channel=NickChapsas"/>
   /// <seealso cref="https://github.com/doggy8088/AspNetCore6JwtAuthDemo/blob/main/JwtHelpers.cs"/>
+  [SwaggerResponse(200, type: typeof(String))]
+  [SwaggerResponse(400, type: typeof(ErrMsg))]
   [HttpPost("[action]")]
   public IActionResult GenerateToken([FromBody] TokenGenerationRequest request)
   {
@@ -38,37 +39,29 @@ public class IdentityController : ControllerBase
       var key = Encoding.ASCII.GetBytes(_config["JwtSettings:SigningKey"]);
 
       var claims = new List<Claim>
-    {
-      new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-      new(JwtRegisteredClaimNames.Sub, request.Email),
-      new(JwtRegisteredClaimNames.Email, request.Email),
-      new("userid", request.UserId.ToString())
-    };
+      {
+        new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new(JwtRegisteredClaimNames.Sub, request.Email),
+        new(JwtRegisteredClaimNames.Email, request.Email),
+        new("userid", request.UserId.ToString())
+      };
 
       if (request.CustomClaims != null)
       {
         foreach (var claimPair in request.CustomClaims)
         {
-          //var jsonElement = claimPair.Value;
-          //var valueType = jsonElement.ValueKind switch
-          //{
-          //  JsonValueKind.True => ClaimValueTypes.Boolean,
-          //  JsonValueKind.False => ClaimValueTypes.Boolean,
-          //  JsonValueKind.Number => ClaimValueTypes.Double,
-          //  _ => ClaimValueTypes.String
-          //};
-
           var claim = new Claim(claimPair.Key, claimPair.Value, ClaimValueTypes.String);
           claims.Add(claim);
         }
       }
 
+      //# resource
       var tokenDescriptor = new SecurityTokenDescriptor
       {
         Subject = new ClaimsIdentity(claims),
-        Expires = DateTime.UtcNow.Add(TokenLifetime),
+        Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(_config.GetValue<double>("JwtSettings:TokenLifetimeMinutes"))),
         Issuer = _config["JwtSettings:Issuer"],
-        Audience = _config["JwtSettings:Audience"], // SigningKey
+        Audience = _config["JwtSettings:Audience"],
         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["JwtSettings:SigningKey"])), SecurityAlgorithms.HmacSha256Signature)
       };
 

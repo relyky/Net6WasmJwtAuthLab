@@ -30,8 +30,8 @@ builder.Services.AddAuthentication(option =>
 });
 builder.Services.AddAuthorization(option =>
 {
-  option.AddPolicy(IdentityData.AdminUserPolicyName, p =>
-    p.RequireClaim(IdentityData.AdminUserClaimName, "true"));
+  option.AddPolicy(IdentityAttr.AdminPolicyName, p =>
+    p.RequireClaim(IdentityAttr.AdminClaimName, "true"));
 });
 
 //
@@ -58,7 +58,7 @@ else
 {
   app.UseExceptionHandler("/Error");
   // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-  app.UseHsts();
+  app.UseHsts(); // HTTPS-only
 }
 
 app.UseHttpsRedirection();
@@ -71,8 +71,6 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-
-app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();

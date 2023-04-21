@@ -39,7 +39,7 @@ public class TodoController : ControllerBase
     return Ok(_simsTodoRepo);
   }
 
-  [RequiresClaim(IdentityData.AdminUserClaimName,"true")]
+  [RequiresClaim(IdentityAttr.AdminClaimName,"true")]
   [HttpPost("[action]")]
   [SwaggerResponse(200, type: typeof(TodoDto))]
   [SwaggerResponse(400, type: typeof(ErrMsg))]

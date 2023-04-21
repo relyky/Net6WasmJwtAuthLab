@@ -54,57 +54,36 @@
   //  await HandleQuery();
   //}
 
-  async Task HandleQuery()
+  Task HandleQuery() => CatchHandling(async () =>
+  {
+    await Task.Delay(500);
+
+    var qryArgs = new TodoQryAgs
+      {
+        Msg = f_testFail ? "測試邏輯失敗" : "今天天氣真好",
+        Amt = 999
+      };
+
+    dataList = await bizApi.QryDataListAsync(qryArgs);
+  });
+
+  Task HandleAdd() => CatchHandling(async () =>
+  {
+    var newTodo = await bizApi.AddFormDataAsync(newTodoDesc);
+
+    // Success
+    dataList.Add(newTodo);
+    newTodoDesc = string.Empty;
+  });
+
+  //# AOP with Decorator
+  async Task CatchHandling(Func<Task> action)
   {
     try
     {
       f_loading = true;
       errMsg = string.Empty;
-
-      await Task.Delay(500);
-
-      var qryArgs = new TodoQryAgs
-        {
-          Msg = f_testFail ? "測試邏輯失敗" : "今天天氣真好",
-          Amt = 999
-        };
-
-      dataList = await bizApi.QryDataListAsync(qryArgs);
-    }
-    catch (ApiException ex)
-    {
-      if(ex.StatusCode == HttpStatusCode.BadRequest)
-      {
-        var msg = await ex.GetContentAsAsync<ErrMsg>();
-        errMsg = $"ApiException: {msg.Severity}-{msg.Message}";
-      }
-      else
-      {
-        errMsg = $"ApiException: {ex.Message}";
-      }
-    }
-    catch (Exception ex)
-    {
-      errMsg = "EXCEPTION: " + ex.Message;
-    }
-    finally
-    {
-      f_loading = false;
-    }
-  }
-
-  async Task HandleAdd()
-  {
-    try
-    {
-      f_loading = true;
-      errMsg = string.Empty;
-
-      var newTodo = await bizApi.AddFormDataAsync(newTodoDesc);
-
-      // Success
-      dataList.Add(newTodo);
-      newTodoDesc = string.Empty;
+      await action();
     }
     catch (ApiException ex)
     {
@@ -127,4 +106,78 @@
       f_loading = false;
     }
   }
+
+  //async Task HandleQuery_old()
+  //{
+  //  try
+  //  {
+  //    f_loading = true;
+  //    errMsg = string.Empty;
+  //
+  //    await Task.Delay(500);
+  //
+  //    var qryArgs = new TodoQryAgs
+  //      {
+  //        Msg = f_testFail ? "測試邏輯失敗" : "今天天氣真好",
+  //        Amt = 999
+  //      };
+  //
+  //    dataList = await bizApi.QryDataListAsync(qryArgs);
+  //  }
+  //  catch (ApiException ex)
+  //  {
+  //    if (ex.StatusCode == HttpStatusCode.BadRequest)
+  //    {
+  //      var msg = await ex.GetContentAsAsync<ErrMsg>();
+  //      errMsg = $"ApiException: {msg.Severity}-{msg.Message}";
+  //    }
+  //    else
+  //    {
+  //      errMsg = $"ApiException: {ex.Message}";
+  //    }
+  //  }
+  //  catch (Exception ex)
+  //  {
+  //    errMsg = "EXCEPTION: " + ex.Message;
+  //  }
+  //  finally
+  //  {
+  //    f_loading = false;
+  //  }
+  //}
+
+  //async Task HandleAdd_old()
+  //{
+  //  try
+  //  {
+  //    f_loading = true;
+  //    errMsg = string.Empty;
+  //
+  //    var newTodo = await bizApi.AddFormDataAsync(newTodoDesc);
+  //
+  //    // Success
+  //    dataList.Add(newTodo);
+  //    newTodoDesc = string.Empty;
+  //  }
+  //  catch (ApiException ex)
+  //  {
+  //    if (ex.StatusCode == HttpStatusCode.BadRequest)
+  //    {
+  //      var msg = await ex.GetContentAsAsync<ErrMsg>();
+  //      errMsg = $"ApiException: {msg.Severity}-{msg.Message}";
+  //    }
+  //    else
+  //    {
+  //      errMsg = $"ApiException: {ex.Message}";
+  //    }
+  //  }
+  //  catch (Exception ex)
+  //  {
+  //    errMsg = "EXCEPTION: " + ex.Message;
+  //  }
+  //  finally
+  //  {
+  //    f_loading = false;
+  //  }
+  //}
 }
