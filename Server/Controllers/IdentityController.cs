@@ -45,20 +45,23 @@ public class IdentityController : ControllerBase
       new("userid", request.UserId.ToString())
     };
 
-      //foreach (var claimPair in request.CustomClaims)
-      //{
-      //  var jsonElement = (JsonElement)claimPair.Value;
-      //  var valueType = jsonElement.ValueKind switch
-      //  {
-      //    JsonValueKind.True => ClaimValueTypes.Boolean,
-      //    JsonValueKind.False => ClaimValueTypes.Boolean,
-      //    JsonValueKind.Number => ClaimValueTypes.Double,
-      //    _ => ClaimValueTypes.String
-      //  };
-      //
-      //  var claim = new Claim(claimPair.Key, claimPair.Value.ToString()!, valueType);
-      //  claims.Add(claim);
-      //}
+      if (request.CustomClaims != null)
+      {
+        foreach (var claimPair in request.CustomClaims)
+        {
+          //var jsonElement = claimPair.Value;
+          //var valueType = jsonElement.ValueKind switch
+          //{
+          //  JsonValueKind.True => ClaimValueTypes.Boolean,
+          //  JsonValueKind.False => ClaimValueTypes.Boolean,
+          //  JsonValueKind.Number => ClaimValueTypes.Double,
+          //  _ => ClaimValueTypes.String
+          //};
+
+          var claim = new Claim(claimPair.Key, claimPair.Value, ClaimValueTypes.String);
+          claims.Add(claim);
+        }
+      }
 
       var tokenDescriptor = new SecurityTokenDescriptor
       {

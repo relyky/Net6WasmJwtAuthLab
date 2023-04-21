@@ -6,11 +6,13 @@
 <PageTitle>Auth lab</PageTitle>
 
 <MudContainer>
-  <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleGenerateToken>Click me</MudButton>
+
+  <MudCheckBox @bind-Checked=@isAdmin Color=Color.Warning>系統管理員</MudCheckBox>
+  <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleGenerateToken>Generate token</MudButton>
 
   @if(f_loading)
   {
-    <MudProgressLinear Color=Color.Info Indeterminate /> 
+    <MudProgressLinear Color=Color.Info Indeterminate />
   }
 
   @if (!String.IsNullOrWhiteSpace(errMsg))
@@ -29,6 +31,7 @@
   string? token = null;
   bool f_loading = false;
   string errMsg = string.Empty;
+  bool isAdmin = false;
 
   async Task HandleGenerateToken()
   {
@@ -41,7 +44,10 @@
         {
           UserId = new Guid("12345678-1234-1234-1234-123456789012"),
           Email = "nobody@mail.server",
-          CustomClaims = @"{'admin': false }"
+          CustomClaims = new(new KeyValuePair<string, string>[]
+          {
+            new("admin", isAdmin ? "true" : "false")
+          })
         };
 
       token = await bizApi.GenerateTokenAsync(request);

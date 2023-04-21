@@ -75,8 +75,8 @@
     {
       if(ex.StatusCode == HttpStatusCode.BadRequest)
       {
-        var err = await ex.GetContentAsAsync<ErrMsg>();        
-        errMsg = $"ApiException: {err.Severity}-{err.Message}";
+        var msg = await ex.GetContentAsAsync<ErrMsg>();
+        errMsg = $"ApiException: {msg.Severity}-{msg.Message}";
       }
       else
       {
@@ -106,10 +106,17 @@
       dataList.Add(newTodo);
       newTodoDesc = string.Empty;
     }
-    catch (ApiException exx)
+    catch (ApiException ex)
     {
-      var err = await exx.GetContentAsAsync<ErrMsg>();
-      errMsg = $"Refit.ApiException: {err.Severity}-{err.Message}";
+      if (ex.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var msg = await ex.GetContentAsAsync<ErrMsg>();
+        errMsg = $"ApiException: {msg.Severity}-{msg.Message}";
+      }
+      else
+      {
+        errMsg = $"ApiException: {ex.Message}";
+      }
     }
     catch (Exception ex)
     {

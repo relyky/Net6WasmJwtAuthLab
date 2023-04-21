@@ -5,10 +5,11 @@ namespace SmallEco.Client.RefitClient;
 
 public interface ITodoApi
 {
-  [Headers("Authorization: Bearer")]
   [Post("/api/Todo/QryDataList")]
+  [Headers("Authorization: Bearer")]
   Task<List<TodoDto>> QryDataListAsync(TodoQryAgs args);
 
   [Post("/api/Todo/AddFormData")]
+  [Headers("Authorization: Bearer")]
   Task<TodoDto> AddFormDataAsync(string newTodoDesc);
 }

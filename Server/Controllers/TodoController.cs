@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmallEco.DTO;
+using SmallEco.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmallEco.Server.Controllers;
@@ -38,6 +39,7 @@ public class TodoController : ControllerBase
     return Ok(_simsTodoRepo);
   }
 
+  [RequiresClaim(IdentityData.AdminUserClaimName,"true")]
   [HttpPost("[action]")]
   [SwaggerResponse(200, type: typeof(TodoDto))]
   [SwaggerResponse(400, type: typeof(ErrMsg))]

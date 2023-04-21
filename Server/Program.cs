@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
+using SmallEco.Models;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -9,7 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 //¡± Add services to the container. ============================================
 
 //## for Authentication & Authorization
-builder.Services.AddAuthentication(option => { 
+builder.Services.AddAuthentication(option =>
+{
   option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
   option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
   option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -26,7 +28,11 @@ builder.Services.AddAuthentication(option => {
     ValidateIssuerSigningKey = true,
   };
 });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(option =>
+{
+  option.AddPolicy(IdentityData.AdminUserPolicyName, p =>
+    p.RequireClaim(IdentityData.AdminUserClaimName, "true"));
+});
 
 //
 builder.Services.AddControllersWithViews();
