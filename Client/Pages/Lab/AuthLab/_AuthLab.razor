@@ -47,6 +47,7 @@
 
     token = await bizApi.GenerateTokenAsync(request);
     await sessionStorage.SetItemAsync("token", token);
+    //※ 此練習把 sessionStorage 當成 token store 使用，正式版建議存入更安全的地方或加密。
   });
 
   async Task CatchHandling(Func<Task> action)

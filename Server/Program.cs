@@ -63,14 +63,14 @@ else
 
 app.UseHttpsRedirection();
 
-//## for Authentication & Authorization
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+//## for Authentication & Authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
