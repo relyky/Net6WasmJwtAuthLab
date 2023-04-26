@@ -128,6 +128,26 @@ public interface IdentityApi
   Task<String> GenerateTokenAsync(TokenGenerationRequest request);
 }
 ```
+# 前端：註冊 RefitApi 使可以注入(DI)
+*filepath:* `Client/Program.cs`
+```csharp
+//## 註冊 RefitClient API。 --- 偵測全部的 Refit API 並註冊
+var asm = Assembly.GetAssembly(typeof(App));
+foreach (var refitClientType in asm!.GetTypes().Where(c => c.Namespace == "SmallEco.Client.RefitClient" && c.IsInterface && c.Name.EndsWith("Api")))
+{
+  builder.Services.AddRefitClient(refitClientType)
+    .ConfigureHttpClient(http => http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+    .AddHttpMessageHandler<AuthHeaderHandler>(); // 將加入 Bearer Token
+}
+
+或
+//## 註冊 RefitClient API。 --- 手動一個一個註冊
+builder.Services
+    .AddRefitClient<SmallEco.Client.RefitClient.ITodoApi>()
+    .ConfigureHttpClient(http => http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+```
+
 # 前端：取得 JWT Bearer Token
 
 
