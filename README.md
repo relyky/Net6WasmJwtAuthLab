@@ -185,7 +185,35 @@ dataList = await bizApi.QryDataListAsync(qryArgs);
 >
 > 若 Refit 設定與註冊做的到位就會發現可以少寫很多碼。在 Refit Api 呼叫過程中 Bearer Token 由註冊內容中的 AuthHeaderHandler 負責加進去了。
 > 
+*filepath:* `Client/Models/AuthHeaderHandler.cs` --- 只節取最關健的原始碼   
+```csharp
+using Blazored.SessionStorage;
+using System.Net.Http.Headers;
 
+class AuthHeaderHandler : DelegatingHandler
+{
+  readonly ISessionStorageService _sessionStorage;
+  public AuthHeaderHandler(ISessionStorageService sessionStorage) //------ 將由DI注入資源
+  {
+    _sessionStorage = sessionStorage;
+    //※ 此練習把 sessionStorage 當成 token store 使用，正式版建議存入更安全的地方或加密。
+  }
+
+  protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+  {
+    //## 自 token 存放庫取得
+    string token = await _sessionStorage.GetItemAsync<string>("token");
+
+    //※ potentially refresh token here if it has expired etc.
+
+    if (!String.IsNullOrWhiteSpace(token))
+      request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token); //------ 加入 Bearer token
+
+    var resp = await base.SendAsync(request, cancellationToken);
+    return resp;
+  }
+}
+```
 # 後端：設定 Authorization 以驗證有否權力使用
 
 
