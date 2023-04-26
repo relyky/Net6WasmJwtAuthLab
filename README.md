@@ -149,7 +149,25 @@ builder.Services
 ```
 
 # 前端：取得 JWT Bearer Token
+*filepath:* `Client/Pages/Lab/AuthLab/_AuthLab.razor` --- 只節取最關健的原始碼   
+```razor
+@inject IdentityApi bizApi
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
+var request = new TokenGenerationRequest
+{
+  UserId = new Guid("12345678-1234-1234-1234-123456789012"),
+  Email = "nobody@mail.server",
+  CustomClaims = new(new KeyValuePair<string, string>[]
+  {
+    new("admin", isAdmin ? "true" : "false")
+  })
+};
+
+token = await bizApi.GenerateTokenAsync(request);
+await sessionStorage.SetItemAsync("token", token);
+//※ 此練習把 sessionStorage 當成 token store 使用，正式版建議存入更安全的地方或加密。
+```
 
 # 前端：Call Web API with Bearer Token
 
