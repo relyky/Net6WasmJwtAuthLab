@@ -35,15 +35,21 @@ public class IdentityController : ControllerBase
   {
     try
     {
-      var tokenHandler = new JwtSecurityTokenHandler();
       var key = Encoding.ASCII.GetBytes(_config["JwtSettings:SigningKey"]);
 
       var claims = new List<Claim>
       {
-        new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new(JwtRegisteredClaimNames.Sub, request.Email),
-        new(JwtRegisteredClaimNames.Email, request.Email),
-        new("userid", request.UserId.ToString())
+        new(ClaimTypes.Name, "MyName"),
+        new (JwtRegisteredClaimNames.Name, "showmethemoney"),
+        new (JwtRegisteredClaimNames.GivenName, "Show me the money"), // 顯示名稱
+        new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new (JwtRegisteredClaimNames.Sub, request.Email),
+        new (JwtRegisteredClaimNames.Email, request.Email),
+        new ("userid", request.UserId.ToString()),
+        new (ClaimTypes.Role, "Staff"),
+        new (ClaimTypes.Role, "DEMO001"),
+        new (ClaimTypes.Role, "DEOM002"),
+        new (ClaimTypes.Role, "DEMO003")
       };
 
       if (request.CustomClaims != null)
@@ -55,17 +61,16 @@ public class IdentityController : ControllerBase
         }
       }
 
-      //# resource
-      var tokenDescriptor = new SecurityTokenDescriptor
+      var tokenHandler = new JwtSecurityTokenHandler();
+      var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
       {
         Subject = new ClaimsIdentity(claims),
         Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(_config.GetValue<double>("JwtSettings:TokenLifetimeMinutes"))),
         Issuer = _config["JwtSettings:Issuer"],
         Audience = _config["JwtSettings:Audience"],
-        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["JwtSettings:SigningKey"])), SecurityAlgorithms.HmacSha256Signature)
-      };
+        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+      });
 
-      var token = tokenHandler.CreateToken(tokenDescriptor);
       var jwt = tokenHandler.WriteToken(token);
 
       return Ok(jwt);

@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject AuthenticationStateProvider authStateProvider
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -9,6 +11,20 @@
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
     <MudText Typo="Typo.h5" Class="ml-3">SmallEco</MudText>
     <MudSpacer />
+    
+    <AuthorizeView Context="auth">
+      <Authorized>
+        <MudText Class="mr-2">@auth.User.Identity?.Name</MudText>
+        <MudButton Variant="Variant.Text" OnClick=HandleLogout Color=Color.Inherit Class="mr-2">登出</MudButton>
+      </Authorized>
+      <Authorizing>
+        <MudText Class="mr-2">登入中</MudText>
+      </Authorizing>
+      <NotAuthorized>
+        <MudText Class="mr-2">未登入</MudText>
+      </NotAuthorized>
+    </AuthorizeView>
+
     <MudLink Href="https://docs.microsoft.com/aspnet/" Target="_blank" Color=Color.Inherit>About</MudLink>
     <MudIconButton Icon=@Icons.Material.Filled.MoreVert Color=Color.Inherit Edge=Edge.End />
   </MudAppBar>
@@ -19,11 +35,20 @@
     @Body
   </MudMainContent>
 </MudLayout>
+
 @code {
   bool _drawerOpen = true;
 
   void DrawerToggle()
   {
     _drawerOpen = !_drawerOpen;
+  }
+
+  async Task HandleLogout()
+  {
+    // 清除 auth token
+    await sessionStorage.RemoveItemAsync("token");
+    // 刷新登入狀態
+    await authStateProvider.GetAuthenticationStateAsync();
   }
 }

@@ -1,12 +1,30 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿<CascadingAuthenticationState>
+  <Router AppAssembly=@(typeof(App).Assembly) PreferExactMatches>
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+      <AuthorizeRouteView RouteData=@routeData DefaultLayout=@typeof(MainLayout)>
+        <Authorizing>
+          <div class="my-16 pa-8">
+            <MudText Typo=Typo.h1>Authorizing</MudText>
+            <MudText Typo=Typo.h2>授權處理中…</MudText>
+          </div>
+        </Authorizing>
+        <NotAuthorized>
+          <div class="my-16 pa-8">
+            <MudText Typo=Typo.h1>401 NotAuthorized</MudText>
+            <MudText Typo=Typo.h2>You Shall Not Pass!</MudText>
+          </div>
+        </NotAuthorized>
+      </AuthorizeRouteView>
+      @*<FocusOnNavigate RouteData="@routeData" Selector="h1" />*@
     </Found>
     <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
+      <PageTitle>Not found</PageTitle>
+      <LayoutView Layout=@typeof(MainLayout)>
+        <div class="my-16 pa-8">
+          <MudText Typo=Typo.h1>404 NotFound!</MudText>
+          <MudText Typo=Typo.h2>Your princess is in another castle.</MudText>
+        </div>
+      </LayoutView>
     </NotFound>
-</Router>
+  </Router>
+</CascadingAuthenticationState>

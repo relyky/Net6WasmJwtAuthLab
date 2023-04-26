@@ -1,0 +1,105 @@
+﻿@using System.Net
+@using System.Security.Claims
+@using System.Text.Json;
+@page "/authstate"
+@attribute [Authorize]
+
+<PageTitle>Authetication State</PageTitle>
+
+<MudContainer>
+  <MudText Typo=Typo.h3>Authetication State</MudText>
+
+  <AuthorizeView Context="auth">
+    <p>
+      Name: @auth.User.Identity?.Name <br />
+      IsAuthenticated: @auth.User.Identity?.IsAuthenticated
+    </p>
+  </AuthorizeView>
+
+  @if (userIdentity != null)
+  {
+    <MudSimpleTable Dense>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Value</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>Name</th>
+        <td>@userIdentity.Name</td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>AuthenticationType</th>
+        <td>@userIdentity.AuthenticationType</td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>IsAuthenticated</th>
+        <td>@userIdentity.IsAuthenticated</td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>Label</th>
+        <td>@userIdentity.Label</td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>NameClaimType</th>
+        <td>@userIdentity.NameClaimType</td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>RoleClaimType</th>
+        <td>@userIdentity.RoleClaimType</td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>has Actor</th>
+        <td>@(userIdentity.Actor != null)</td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>has BootstrapContext</th>
+        <td>@(userIdentity.BootstrapContext != null)</td>
+        <td></td>
+      </tr>
+      <tr>
+        <th colspan="3" class="mud-theme-dark">Claims</th>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <th>Value</th>
+        <th>ValueType</th>
+      </tr>
+      @foreach (var claim in userIdentity.Claims)
+        {
+          <tr>
+            <td>@claim.Type</td>
+            <td>@claim.Value</td>
+            <td>@claim.ValueType</td>
+          </tr>
+        }
+      </tbody>
+    </MudSimpleTable>
+  }
+
+</MudContainer>
+
+@code {
+  [CascadingParameter] Task<AuthenticationState> AuthState { get; set; }
+
+  //## State
+  ClaimsIdentity? userIdentity = null;
+
+  protected override async Task OnParametersSetAsync()
+  {
+    await base.OnParametersSetAsync();
+    var authState = await AuthState;
+    userIdentity = authState?.User?.Identity as ClaimsIdentity;
+  }
+
+}

@@ -1,15 +1,21 @@
+using Blazored.SessionStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
-using System.Reflection;
-using SmallEco.Client;
 using Refit;
-using Blazored.SessionStorage;
+using SmallEco.Client;
+using SmallEco.Client.Services;
 using SmallEco.Models;
+using System.Reflection;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
+
+//## for Authentication & Authorization
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddAuthorizationCore();
 
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredSessionStorageAsSingleton();

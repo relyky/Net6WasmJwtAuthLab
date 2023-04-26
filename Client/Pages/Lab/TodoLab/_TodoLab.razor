@@ -1,5 +1,6 @@
-﻿@page "/todo"
-@using System.Net;
+﻿@using System.Net
+@page "/todo"
+@attribute [Authorize]
 @inject ITodoApi bizApi
 
 <PageTitle>Counter</PageTitle>

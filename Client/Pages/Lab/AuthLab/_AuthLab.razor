@@ -1,16 +1,17 @@
-﻿@using System.Net;
+﻿@using System.Net
 @page "/auth"
 @inject IdentityApi bizApi
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject AuthenticationStateProvider authStateProvider
 
 <PageTitle>Auth lab</PageTitle>
 
 <MudContainer>
 
   <MudCheckBox @bind-Checked=@isAdmin Color=Color.Warning>系統管理員</MudCheckBox>
-  <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleGenerateToken>Generate token</MudButton>
+  <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleGenerateToken>Generate token (效果等同登入)</MudButton>
 
-  @if(f_loading)
+  @if (f_loading)
   {
     <MudProgressLinear Color=Color.Info Indeterminate />
   }
@@ -22,9 +23,21 @@
     </MudAlert>
   }
 
-  <pre style="white-space:pre-line; overflow-wrap:break-word;">
-    @token
-  </pre>
+  <AuthorizeView>
+    <Authorized>
+      <MudText Typo=Typo.h2 Color=Color.Success>已登入</MudText>
+      <pre style="white-space:pre-line; overflow-wrap:break-word;">
+        @token
+      </pre>
+    </Authorized>
+    <Authorizing>
+      <MudText Typo=Typo.h2 Color=Color.Info>登入驗證中…</MudText>
+    </Authorizing>
+    <NotAuthorized>
+      <MudText Typo=Typo.h2 Color=Color.Dark>未登入</MudText>      
+    </NotAuthorized>
+  </AuthorizeView>
+
 </MudContainer>
 
 @code {
@@ -40,14 +53,17 @@
         UserId = new Guid("12345678-1234-1234-1234-123456789012"),
         Email = "nobody@mail.server",
         CustomClaims = new(new KeyValuePair<string, string>[]
-      {
-            new("admin", isAdmin ? "true" : "false")
-          })
+        {
+              new("admin", isAdmin ? "true" : "false")
+        })
       };
 
     token = await bizApi.GenerateTokenAsync(request);
     await sessionStorage.SetItemAsync("token", token);
     //※ 此練習把 sessionStorage 當成 token store 使用，正式版建議存入更安全的地方或加密。
+
+    // 將會刷新登入狀態
+    await authStateProvider.GetAuthenticationStateAsync();
   });
 
   async Task CatchHandling(Func<Task> action)
