@@ -12,8 +12,47 @@
 stirng a = "今天天氣真好。";
 ```
 
-# 設定 JWT Authentication
+# 設定 JWT Authenticatio
+*filepath:* `Server/Program.cs` --- 只節取最關健的原始碼
+```csharp
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
+
+//§ Add services to the container. ============================================
+[...]
+
+builder.Services.AddAuthentication(option =>
+{
+  option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+  option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+  option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(option =>
+{
+  option.TokenValidationParameters = new TokenValidationParameters
+  {
+    ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+    ValidAudience = builder.Configuration["JwtSettings:Audience"],
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:SigningKey"])),
+    ValidateIssuer = true,
+    ValidateAudience = true,
+    ValidateLifetime = true,
+    ValidateIssuerSigningKey = true,
+  };
+});
+builder.Services.AddAuthorization(option =>
+{
+  option.AddPolicy(IdentityAttr.AdminPolicyName, p =>
+    p.RequireClaim(IdentityAttr.AdminClaimName, "true"));
+});
+
+//§ Configure the HTTP request pipeline. ======================================
+[...]
+
+app.UseAuthentication();
+app.UseAuthorization();
+```
 
 # 產生 JWT Token
 
