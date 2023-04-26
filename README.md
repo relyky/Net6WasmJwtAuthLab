@@ -215,6 +215,26 @@ class AuthHeaderHandler : DelegatingHandler
 }
 ```
 # 後端：設定 Authorization 以驗證有否權力使用
+Authorization 的部份與標準的用法一樣，[Role-based](https://learn.microsoft.com/en-us/aspnet/core/security/authorization/roles?view=aspnetcore-6.0)、[Policy-based](https://learn.microsoft.com/en-us/aspnet/core/security/authorization/policies?view=aspnetcore-6.0) 當然都可以，此範例中有：   
 
+### `[Authorize]` 只看是否有登入
+*filepath:* `Server/Controllers/TodoController.cs` --- 只節取最關健的原始碼 
+```csharp
+[Authorize]
+[Route("api/[controller]")]
+[ApiController]
+public class TodoController : ControllerBase
+{ ... }
+```
 
-
+### `[RequiresClaim(IdentityAttr.AdminClaimName,"true")]` 為系統管理者才可使用
+*filepath:* `Server/Controllers/TodoController.cs` --- 只節取最關健的原始碼 
+```csharp
+[RequiresClaim(IdentityAttr.AdminClaimName,"true")]
+[HttpPost("[action]")]
+[SwaggerResponse(200, type: typeof(TodoDto))]
+[SwaggerResponse(400, type: typeof(ErrMsg))]
+public IActionResult AddFormData(string newTodoDesc)
+{ ... }
+```
+(EOF)
