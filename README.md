@@ -4,7 +4,7 @@
 # 主要模組用途簡述
 * .NET6: 執行平台
 * WASM: 系統框架
-* Swagger: Web API 描述文件
+* Swagger: Web API 描述文件 用 `Swashbuckle`模組實作。
 * Refit: 負責 Client 與 Server 端 Web API 通訊
 
 # 先看一下組態參數
@@ -64,7 +64,56 @@ app.UseAuthorization();
 ```
 
 # 產生 JWT Token
+*filepath:* `Server/Controllers/IdentityController.cs` --- 只節取最關健的原始碼
+```csharp
+[HttpPost("[action]")]
+public IActionResult GenerateToken([FromBody] TokenGenerationRequest request)
+{
+  try
+  {
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var key = Encoding.ASCII.GetBytes(_config["JwtSettings:SigningKey"]);
 
+    var claims = new List<Claim>
+    {
+      new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+      new(JwtRegisteredClaimNames.Sub, request.Email),
+      new(JwtRegisteredClaimNames.Email, request.Email),
+      new("userid", request.UserId.ToString())
+    };
+
+    if (request.CustomClaims != null)
+    {
+      foreach (var claimPair in request.CustomClaims)
+      {
+        var claim = new Claim(claimPair.Key, claimPair.Value, ClaimValueTypes.String);
+        claims.Add(claim);
+      }
+    }
+
+    //# resource
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+      Subject = new ClaimsIdentity(claims),
+      Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(_config.GetValue<double>("JwtSettings:TokenLifetimeMinutes"))),
+      Issuer = _config["JwtSettings:Issuer"],
+      Audience = _config["JwtSettings:Audience"],
+      SigningCredentials = new SigningCredentials(
+              new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["JwtSettings:SigningKey"])), 
+              SecurityAlgorithms.HmacSha256Signature)
+    };
+
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    var jwt = tokenHandler.WriteToken(token);
+
+    return Ok(jwt);
+  }
+  catch (Exception ex)
+  {
+    return BadRequest(new ErrMsg(ex.Message));
+  }
+}
+```
 
 # Web Api with Bearer Token
 
