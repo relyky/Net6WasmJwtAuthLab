@@ -170,7 +170,21 @@ await sessionStorage.SetItemAsync("token", token);
 ```
 
 # 前端：Call Web API with Bearer Token
+*filepath:* `Client/Pages/Lab/TodoLab/_TodoLab.razor` --- 只節取最關健的原始碼   
+```razor
+@inject ITodoApi bizApi
 
+var qryArgs = new TodoQryAgs {
+    Msg = f_testFail ? "測試邏輯失敗" : "今天天氣真好",
+    Amt = 999
+  };
+
+dataList = await bizApi.QryDataListAsync(qryArgs);
+//※ 此 WebApi 呼叫過程中 Bearer Token 由 Refit 依註冊內容中的 AuthHeaderHandler 負責加進去了。
+```
+>
+> 若 Refit 設定與註冊做的到位就會發現可以少寫很多碼。在 Refit Api 呼叫過程中 Bearer Token 由註冊內容中的 AuthHeaderHandler 負責加進去了。
+> 
 
 # 後端：設定 Authorization 以驗證有否權力使用
 
