@@ -21,7 +21,7 @@
 }
 ```
 
-# 設定 JWT Authenticatio
+# 後端：設定 JWT Authentication
 *filepath:* `Server/Program.cs` --- 只節取最關健的原始碼
 ```csharp
 
@@ -63,7 +63,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 ```
 
-# 產生 JWT Token
+# 後端：產生 JWT Token
 *filepath:* `Server/Controllers/IdentityController.cs` --- 只節取最關健的原始碼
 ```csharp
 [HttpPost("[action]")]
@@ -115,8 +115,13 @@ public IActionResult GenerateToken([FromBody] TokenGenerationRequest request)
 }
 ```
 
-# Web Api with Bearer Token
+# 前端：取得 JWT Bearer Token
 
 
-# Authorization 
+# 前端：Call Web API with Bearer Token
+
+
+# 後端：設定 Authorization 以驗證有否權力使用
+
+
 
