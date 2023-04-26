@@ -25,8 +25,9 @@
   //## Property
   PersonStatus Status => Health switch
   {
-    > 70 => PersonStatus.Vitality,
-    > 30 => PersonStatus.Normal,
+    >= 80 => PersonStatus.Vitality,
+    >= 50 => PersonStatus.Normal,
+    >= 30 => PersonStatus.Hungry,
     > 0 => PersonStatus.Weak,
     _ => PersonStatus.Dead
   };
@@ -51,9 +52,10 @@
   enum PersonStatus
   {
     Dead,
-    Weak,    // < 30, 消耗減半,率效減半
+    Weak,    // 消耗減半,率效減半
+    Hungry,  // 肚子餓了
     Normal,
-    Vitality // > 70, 消耗二倍,率效二倍
+    Vitality // 消耗二倍,率效二倍
   }
 
 }
