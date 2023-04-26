@@ -8,8 +8,17 @@
 * Refit: 負責 Client 與 Server 端 Web API 通訊
 
 # 先看一下組態參數
-```csharp
-stirng a = "今天天氣真好。";
+*filepath:* `Server/appsettings.json` --- 只節取最關健的原始碼
+```json
+{
+  "JwtSettings": {
+    "Issuer": "https://rely-ky",
+    "Audience": "https://rely-ky",
+    "SigningKey": "showmethemoneyshowmethemoneyshowmethemoney",
+    "TokenLifetimeMinutes": 600
+  },
+  ...略...
+}
 ```
 
 # 設定 JWT Authenticatio
