@@ -117,7 +117,17 @@ public IActionResult GenerateToken([FromBody] TokenGenerationRequest request)
   }
 }
 ```
-
+# 前端：設定 RefitApi 介接港口
+*filepath:* `Client/RefitClient/IdentityApi.cs` 
+> 後端提供多少 Web ApiController 前端就相應有多少 Refit API。 
+```csharp
+using Refit;
+public interface IdentityApi
+{
+  [Post("/api/Identity/GenerateToken")]
+  Task<String> GenerateTokenAsync(TokenGenerationRequest request);
+}
+```
 # 前端：取得 JWT Bearer Token
 
 
