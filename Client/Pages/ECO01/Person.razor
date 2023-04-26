@@ -1,0 +1,60 @@
+﻿@using System.Timers
+@implements IDisposable
+
+<div>
+  <h3>@Name</h3>
+  <code>@Status</code>
+  <p>
+    H:@Health<br />
+    $:@Money<br />
+    C:@Cargo<br />
+  </p>
+</div>
+
+@code {
+  [Parameter] public string Name { get; set; }
+
+  //## Resource
+  Timer timer = new(1000);
+
+  //## State
+  float Health = 100;
+  float Money = 100;
+  float Cargo = 100;
+
+  //## Property
+  PersonStatus Status => Health switch
+  {
+    > 70 => PersonStatus.Vitality,
+    > 30 => PersonStatus.Normal,
+    > 0 => PersonStatus.Weak,
+    _ => PersonStatus.Dead
+  };
+
+  protected override void OnInitialized()
+  {
+    //timer.Elapsed += (sender, eventArgs) => OnTimerCallback();
+    timer.Elapsed += OnTimerElapsed;
+    timer.Start();
+  }
+
+  void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+  {
+    if (Health > 0)
+      Health--;
+
+    StateHasChanged();
+  }
+
+  public void Dispose() => timer.Dispose();
+
+  enum PersonStatus
+  {
+    Dead,
+    Weak,    // < 30, 消耗減半,率效減半
+    Normal,
+    Vitality // > 70, 消耗二倍,率效二倍
+  }
+
+}
+

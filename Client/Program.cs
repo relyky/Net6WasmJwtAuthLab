@@ -16,7 +16,7 @@ builder.Services.AddBlazoredSessionStorageAsSingleton();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddTransient<AuthHeaderHandler>();
 
-//## 註冊 RefitClient API。(法一)
+//## 註冊 RefitClient API。 --- 偵測全部的 Refit API 並註冊
 var asm = Assembly.GetAssembly(typeof(App));
 foreach (var refitClientType in asm!.GetTypes().Where(c => c.Namespace == "SmallEco.Client.RefitClient" && c.IsInterface && c.Name.EndsWith("Api")))
 {
@@ -27,8 +27,9 @@ foreach (var refitClientType in asm!.GetTypes().Where(c => c.Namespace == "Small
 
 ////## 註冊 RefitClient API。 --- 手動一個一個註冊
 //builder.Services
-//    .AddRefitClient<ITodoApi>()
-//    .ConfigureHttpClient(http => http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+//    .AddRefitClient<SmallEco.Client.RefitClient.ITodoApi>()
+//    .ConfigureHttpClient(http => http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+//    .AddHttpMessageHandler<AuthHeaderHandler>();
 
 //=============================================================================
 var app = builder.Build();

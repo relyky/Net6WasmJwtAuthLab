@@ -1,0 +1,25 @@
+﻿@page "/eco01"
+
+<PageTitle>ECO01</PageTitle>
+
+<MudContainer>
+  <MudStack Row>
+    <Person Name="John" />
+    <Person Name="Mary" />
+    <Person Name="Bob" />
+  </MudStack>
+
+
+  @*  <Market />
+
+  <Company />*@
+</MudContainer>
+
+@code {
+  int currentCount = 0;
+
+  void IncrementCount()
+  {
+    currentCount++;
+  }
+}
