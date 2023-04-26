@@ -64,7 +64,10 @@ app.UseAuthorization();
 ```
 
 # 後端：產生 JWT Token
-*filepath:* `Server/Controllers/IdentityController.cs` --- 只節取最關健的原始碼
+*filepath:* `Server/Controllers/IdentityController.cs` --- 只節取最關健的原始碼   
+參考文件：   
+* [Adding JWT Authentication & Authorization in ASP.NET Core](https://www.youtube.com/watch?v=mgeuh8k3I4g&t=2s&ab_channel=NickChapsas)   
+* [JwtHelpers.cs](https://github.com/doggy8088/AspNetCore6JwtAuthDemo/blob/main/JwtHelpers.cs)   
 ```csharp
 [HttpPost("[action]")]
 public IActionResult GenerateToken([FromBody] TokenGenerationRequest request)
