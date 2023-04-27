@@ -8,7 +8,53 @@
 1. 為客製化方案，全程使用 Bearer token 為認證基礎。
 2. 後端 Api 授權管制與 Web API 是一致的。
 3. 前端 @page 的管制與 Blazor Server App 一樣也是以 AuthenticationStateProvider 為中心。所以也是用 Task<AuthenticationState> 來取認證狀態。
-
+4. 授權認證模組也是用：`Microsoft.AspNetCore.Components.Authorization`。
+  
 > ※注意：為練習用，只為確認有登入認證與授權效果，正式版應用應再強化或重構使更成熟可靠。
 
-# 關鍵原碼紀錄
+# 前端：CustomAuthenticationStateProvider
+*filepath:* `Client/Services/CustomAuthenticationStateProvider.cs`  --- 只節取最關健的原始碼  
+```csharp
+public class CustomAuthenticationStateProvider : AuthenticationStateProvider
+{
+  [...]
+  
+  public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+  {
+    //## 自 token 存放庫取得
+    string token = await _sessionStorage.GetItemAsync<string>("token");
+    if (!String.IsNullOrWhiteSpace(token))
+    {
+      var userClaims = ParseClaimsFromJwt(token);
+
+      //# 取登入資訊完成
+      var userAuthState = new AuthenticationState(new ClaimsPrincipal(
+	      new ClaimsIdentity(userClaims, "JWT", JwtRegisteredClaimNames.GivenName, null)));
+		  
+	  //# 成功取得登入資訊後，通知登入狀態已改變。
+      NotifyAuthenticationStateChanged(Task.FromResult(userAuthState));
+      return userAuthState;
+    }
+
+    //## 預設未登入(或已登出)，通知登入狀態已改變。
+    NotifyAuthenticationStateChanged(Task.FromResult(anonymousUser));
+    return anonymousUser;
+  }
+
+  [...]
+}
+```
+
+# 前端：Program.cs 註冊 AuthenticationStateProvider
+*filepath:* `Client/Program.cs`   --- 只節取最關健的原始碼   
+```csharp
+
+//## for Authentication & Authorization
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddAuthorizationCore();
+
+```
+  
+  
+  
+  
