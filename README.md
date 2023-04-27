@@ -1,5 +1,7 @@
 # Net6WasmJwtAuthLab in ASP.NET Core
-.NET6 + WASM + Swagger + Refit => JWT Authentication
+.NET6 + WASM + Swagger + Refit => JWT Authentication   
+   
+還有第二篇 **[README_Client Auth.md](README_Client%20Auth.md)** 是關於前端授權管制的說明。
 
 # 主要模組用途簡述
 * .NET6: 執行平台
