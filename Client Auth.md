@@ -94,7 +94,8 @@ builder.Services.AddAuthorizationCore();
 ```	
 	
 # 前端：在 @page 取得登入狀態
-> 方法一樣用 `Task<AuthenticationState>` 或 `<AuthorizeView />` 元，這與 Blazor Server App 一致。
+> 方法一樣用 `Task<AuthenticationState>` 或 `<AuthorizeView />` 元，這與 Blazor Server App 一致。   
+	
 *filepath:* `Client/Pages/Lab/AuthStateLab/_AuthStateLab.razor`   --- 只節取最關健的原始碼   
 ```csharp
 @page "/authstate"
