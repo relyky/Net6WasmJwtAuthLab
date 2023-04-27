@@ -54,7 +54,9 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStat
 builder.Services.AddAuthorizationCore();
 
 ```
-  
+
+# 前端：登入與登出介面
+登入的後端動作就是產生 JWT Bearer token，這與前端相同不再說明。
   
   
   
