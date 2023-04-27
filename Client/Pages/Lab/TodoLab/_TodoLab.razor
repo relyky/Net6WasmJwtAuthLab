@@ -22,7 +22,7 @@
 
   <MudTable Items=dataList Hover Striped Loading=@f_loading LoadingProgressColor=Color.Info>
     <ToolBarContent>
-      <MudTextField @bind-Value=newTodoDesc Placeholder="工作內容描述"
+      <MudTextField @bind-Value=newTodoDesc Placeholder="工作內容描述 --- 測試有系統管理員(admin)權限才能新增。"
                     Variant=Variant.Outlined Margin=Margin.Dense FullWidth=true
                     Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.TextFormat />
       <MudButton Variant=Variant.Filled Color=Color.Primary Class="ml-2" OnClick=HandleAdd>新增</MudButton>

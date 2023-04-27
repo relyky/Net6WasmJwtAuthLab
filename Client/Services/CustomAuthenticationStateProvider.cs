@@ -39,13 +39,13 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
       var userClaims = ParseClaimsFromJwt(token);
 
-      //# 取登入資訊完成
+      //# 成功取得登入資訊後，通知登入狀態已改變。
       var userAuthState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(userClaims, "JWT", JwtRegisteredClaimNames.GivenName, null)));
       NotifyAuthenticationStateChanged(Task.FromResult(userAuthState));
       return userAuthState;
     }
 
-    //## 預設未登入
+    //## 預設未登入(或已登出)，通知登入狀態已改變。
     NotifyAuthenticationStateChanged(Task.FromResult(anonymousUser));
     return anonymousUser;
   }
