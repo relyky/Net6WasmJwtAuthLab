@@ -56,7 +56,81 @@ builder.Services.AddAuthorizationCore();
 ```
 
 # 前端：登入與登出介面
-登入的後端動作就是產生 JWT Bearer token，這與前端相同不再說明。
-  
-  
-  
+登入的後端動作就是產生 JWT Bearer token，這與前端相同不再說明。   
+為簡化框架用 window.sessionStorage 放 token 正式版建議用更安全的方式。
+	
+## 登入關鍵碼
+*filepath:* `Client/Pages/Lab/AuthLab/_AuthLab.razor`   --- 只節取最關健的原始碼   
+```csharp
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject AuthenticationStateProvider authStateProvider
+
+...略...
+	
+    token = await bizApi.GenerateTokenAsync(request); // 登入的程序就是為了取到 auth token。
+    await sessionStorage.SetItemAsync("token", token); 
+    //※ 此練習把 sessionStorage 當成 token store 使用，正式版建議存入更安全的地方或加密。
+
+    // 將會刷新登入狀態
+    await authStateProvider.GetAuthenticationStateAsync();
+
+```	
+	
+## 登出關鍵碼
+*filepath:* `Client/Shared/MainLayout.razor`   --- 只節取最關健的原始碼   
+```csharp
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject AuthenticationStateProvider authStateProvider
+
+...略...
+	
+  async Task HandleLogout()
+  {
+    // 清除 auth token
+    await sessionStorage.RemoveItemAsync("token"); 
+    // 刷新登入狀態
+    await authStateProvider.GetAuthenticationStateAsync();
+  }
+```	
+	
+# 前端：在 @page 取得登入狀態
+> 方法一樣用 `Task<AuthenticationState>` 或 `<AuthorizeView />` 元，這與 Blazor Server App 一致。
+*filepath:* `Client/Pages/Lab/AuthStateLab/_AuthStateLab.razor`   --- 只節取最關健的原始碼   
+```csharp
+@page "/authstate"
+@attribute [Authorize]
+
+<PageTitle>Authetication State</PageTitle>
+
+<MudContainer>
+  <MudText Typo=Typo.h3>Authetication State</MudText>
+
+  <AuthorizeView Context="auth">
+    <p>
+      Name: @auth.User.Identity?.Name <br />
+      IsAuthenticated: @auth.User.Identity?.IsAuthenticated
+    </p>
+  </AuthorizeView>
+
+  @if (userIdentity != null)
+  {
+     @* ...render userIdentity... *@    
+  }
+
+</MudContainer>
+
+@code {
+  [CascadingParameter] Task<AuthenticationState> AuthState { get; set; }
+
+  //## State
+  ClaimsIdentity? userIdentity = null;
+
+  protected override async Task OnParametersSetAsync()
+  {
+    await base.OnParametersSetAsync();
+    var authState = await AuthState;
+    userIdentity = authState?.User?.Identity as ClaimsIdentity;
+  }
+
+}
+```	
