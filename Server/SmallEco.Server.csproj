@@ -18,5 +18,15 @@
     <ProjectReference Include="..\Shared\SmallEco.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Template\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Template\消保1-1全行客訴案件統計暨同期分析比較.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>

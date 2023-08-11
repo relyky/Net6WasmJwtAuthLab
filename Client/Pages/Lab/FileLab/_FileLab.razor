@@ -1,0 +1,97 @@
+﻿@using System.Net
+@page "/file"
+@attribute [Authorize]
+@inject IFileHandleApi bizApi
+@inject JSInterOpService jsTool
+
+@* 參考：
+https://stackoverflow.com/questions/42141274/refit-c-how-to-download-a-file
+https://learn.microsoft.com/en-us/answers/questions/1033258/download-file-in-c-net-core
+*@
+
+<PageTitle>Counter</PageTitle>
+
+<MudContainer>
+  <MudText Typo=Typo.h3 GutterBottom>Todo list</MudText>
+
+  <MudToolBar Class="gap-3">
+    <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleEcho>Echo</MudButton>
+    <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=HandleDonloadFile>測試下載檔案</MudButton>
+    <MudCheckBox @bind-Checked=f_testFail Color=Color.Warning>測試邏輯失敗</MudCheckBox>
+  </MudToolBar>
+
+  @if(f_loading)
+  {
+    <MudProgressLinear Color=Color.Info Indeterminate />
+  }
+
+  @if (!String.IsNullOrWhiteSpace(errMsg))
+  {
+    <MudAlert Severity=Severity.Error>
+      @errMsg
+    </MudAlert>
+  }
+
+  <MudAlert Severity=Severity.Normal>
+    @message
+  </MudAlert>
+
+</MudContainer>
+
+@code {
+  //## State
+  string errMsg = string.Empty;
+  bool f_loading = false;
+  string message = string.Empty;
+  bool f_testFail = false;
+
+  Task HandleDonloadFile() => CatchHandling(async () =>
+  {
+    Guid id = f_testFail ? Guid.Empty : Guid.NewGuid();
+    
+    HttpContent content = await bizApi.DowloadFileAsync(id);
+    byte[] fileBlob = await content.ReadAsByteArrayAsync();
+
+    string filenameU = content.Headers.GetValues("Content-Disposition").First().Split("filename*=UTF-8''")[1];
+    string filename = Uri.UnescapeDataString(filenameU); // 解碼
+
+    await jsTool.DownloadFileAsync(filename, fileBlob);
+  });
+
+  Task HandleEcho() => CatchHandling(async () =>
+  {
+    message = await bizApi.EchoAsync();
+  });
+
+  //# AOP with Decorator
+  async Task CatchHandling(Func<Task> action)
+  {
+    try
+    {
+      f_loading = true;
+      errMsg = string.Empty;
+      await action();
+    }
+    catch (ApiException ex)
+    {
+      if (ex.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var msg = await ex.GetContentAsAsync<ErrMsg>();
+        errMsg = $"ApiException: {msg.Severity}-{msg.Message}";
+      }
+      else
+      {
+        errMsg = $"ApiException: {ex.StatusCode:D}-{ex.StatusCode} {ex.Message}";
+      }
+    }
+    catch (Exception ex)
+    {
+      errMsg = "EXCEPTION: " + ex.Message;
+    }
+    finally
+    {
+      f_loading = false;
+    }
+  }
+
+}

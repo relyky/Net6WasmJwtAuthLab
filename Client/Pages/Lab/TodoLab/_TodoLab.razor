@@ -95,7 +95,7 @@
       }
       else
       {
-        errMsg = $"ApiException: {ex.Message}";
+        errMsg = $"ApiException: {ex.StatusCode:D}-{ex.StatusCode} {ex.Message}";
       }
     }
     catch (Exception ex)
