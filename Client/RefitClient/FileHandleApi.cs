@@ -11,9 +11,12 @@ namespace SmallEco.Client.RefitClient;
 /// </remarks>
 public interface IFileHandleApi
 {
-  [Post("/api/FileHanlde/DownloadFile")]
+  [Post("/api/FileHandle/DownloadFile")]
   Task<HttpContent> DowloadFileAsync(Guid id);
 
-  [Post("/api/FileHanlde/Echo")]
+  [Post("/api/FileHandle/UploadFile")]
+  Task<List<UploadResult>> UploadFileAsync(MultipartFormDataContent content);
+
+  [Post("/api/FileHandle/Echo")]
   Task<string> EchoAsync();  
 }

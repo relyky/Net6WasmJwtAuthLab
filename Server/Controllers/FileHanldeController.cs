@@ -2,27 +2,38 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
+using Swashbuckle.AspNetCore.Annotations;
 using SmallEco.DTO;
 using SmallEco.Models;
-using Swashbuckle.AspNetCore.Annotations;
+using System.Net;
 
 namespace SmallEco.Server.Controllers;
 
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
-public class FileHanldeController : ControllerBase
+public class FileHandleController : ControllerBase
 {
   //# for injection
-  ILogger<FileHanldeController> _logger;
+  readonly ILogger<FileHandleController> _logger;
+  readonly IWebHostEnvironment _env;
 
-  public FileHanldeController(ILogger<FileHanldeController> logger)
+  public FileHandleController(ILogger<FileHandleController> logger, IWebHostEnvironment env)
   {
     _logger = logger;
+    _env = env;
+  }
+
+  [HttpPost("[action]")]
+  [SwaggerResponse(200, type: typeof(string))]
+  public IActionResult Echo()
+  {
+    return Ok($"echo at {DateTime.Now:HH:mm:ss.}");
   }
 
   [HttpPost("[action]")]
   [SwaggerResponse(200, type: typeof(byte[]))]
+  [SwaggerResponse(400, type: typeof(ErrMsg))]
   public IActionResult DownloadFile(Guid id)
   {
     // 模擬邏輯失敗！
@@ -31,7 +42,7 @@ public class FileHanldeController : ControllerBase
       return BadRequest(new ErrMsg("模擬邏輯失敗！"));
     }
 
-    FileInfo fi = new FileInfo(@"Template\消保1-1全行客訴案件統計暨同期分析比較.xlsx");
+    FileInfo fi = new FileInfo(@"Template\全行客訴案件統計暨同期分析比較.xlsx");
 
     if (System.IO.File.Exists(fi.FullName))
     {
@@ -42,9 +53,31 @@ public class FileHanldeController : ControllerBase
   }
 
   [HttpPost("[action]")]
-  [SwaggerResponse(200, type: typeof(string))]
-  public IActionResult Echo()
+  [SwaggerResponse(200, type: typeof(List<UploadResult>))]
+  [SwaggerResponse(400, type: typeof(ErrMsg))]
+  public async Task<IActionResult> UploadFile(List<IFormFile> files)
   {
-    return Ok($"echo at {DateTime.Now:HH:mm:ss.}");
+    //// 模擬邏輯失敗！
+    //return BadRequest(new ErrMsg("我錯了！"));
+
+     List<UploadResult> uploadResults = new();
+
+    foreach (IFormFile file in files)
+    {
+      string trustedFileNameForDisplay = WebUtility.HtmlEncode(file.FileName);
+      string trustedFileNameForStorage = Path.GetRandomFileName();
+      string path = Path.Combine(_env.ContentRootPath, "uploads", trustedFileNameForStorage);
+
+      await using FileStream fs = new FileStream(path, FileMode.Create);
+      await file.CopyToAsync(fs);
+
+      uploadResults.Add(new UploadResult
+      {
+        FileName = trustedFileNameForDisplay,
+        StoredFileName = trustedFileNameForStorage
+      });
+    }
+
+    return Ok(uploadResults);
   }
 }

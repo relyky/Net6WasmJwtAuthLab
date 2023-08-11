@@ -1,0 +1,151 @@
+﻿@using System.Net
+@using System.Net.Http.Headers
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@page "/fileup"
+@attribute [Authorize]
+@inject IFileHandleApi bizApi
+@inject JSInterOpService jsTool
+@inject IWebAssemblyHostEnvironment env
+
+<MudContainer>
+  <MudText Typo=Typo.h3 GutterBottom>上傳檔案測試</MudText>
+
+  <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged=HandleUploadFiles>
+    <ButtonTemplate>
+      <MudFab HtmlTag="label"
+              Color="Color.Secondary"
+              StartIcon=@Icons.Material.Filled.CloudUpload
+              Label="選取上傳檔案"
+              for="@context" />
+    </ButtonTemplate>
+  </MudFileUpload>
+
+  @if (f_loading)
+  {
+    <MudProgressLinear Color=Color.Info Indeterminate />
+  }
+
+  @if (!String.IsNullOrWhiteSpace(errMsg))
+  {
+    <MudAlert Severity=Severity.Error>
+      @errMsg
+    </MudAlert>
+  }
+
+  @if (fileNames.Count > 0)
+  {
+    <ul>
+      @foreach (var fileName in fileNames)
+      {
+        <li>
+          File: @fileName
+        </li>
+      }
+    </ul>
+  }
+
+  @if (uploadResults.Count > 0)
+  {
+    <ul>
+      @foreach (var item in uploadResults)
+      {
+        <li>
+          Upload file: @item.FileName => @item.StoredFileName
+        </li>
+      }
+    </ul>
+  }
+</MudContainer>
+
+@code {
+  //參考
+  // https://learn.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-6.0
+  // https://www.youtube.com/watch?v=H-mrghoSjxI&ab_channel=PatrickGod
+
+  //## Resource
+  const int maxAllowedFiles = int.MaxValue;
+  const long maxFileSize = long.MaxValue;
+
+  //## State
+  List<string> fileNames = new();
+  List<UploadResult> uploadResults = new();
+  string errMsg = string.Empty;
+  bool f_loading = false;
+
+  Task HandleUploadFiles(IReadOnlyList<IBrowserFile> files) => CatchHandling(async () =>
+  {
+    using var content = new MultipartFormDataContent();
+
+    fileNames.Clear();
+    foreach (IBrowserFile file in files)
+    {
+      var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+      fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+      fileNames.Add(file.Name);
+
+      content.Add(
+        content: fileContent,
+        name: "\"files\"",
+        fileName: file.Name);
+    }
+
+    var newUploadResults = await bizApi.UploadFileAsync(content);
+    if (newUploadResults is not null)
+    {
+      uploadResults = uploadResults.Concat(newUploadResults).ToList();
+    }
+  });
+
+  //errMsg = string.Empty;
+  //using HttpClient Http = new HttpClient();
+  //Http.BaseAddress = new Uri(env.BaseAddress);
+  //var resp = await Http.PostAsync("api/FileHandle/UploadFile", content);
+  //
+  //if (resp.IsSuccessStatusCode)
+  //{
+  //  var newUploadResults = await resp.Content.ReadFromJsonAsync<List<UploadResult>>();
+  //
+  //  if (newUploadResults is not null)
+  //  {
+  //    uploadResults = uploadResults.Concat(newUploadResults).ToList();
+  //  }
+  //}
+  //else
+  //{
+  //  string msg = await resp.Content.ReadAsStringAsync();
+  //  errMsg = $"{resp.StatusCode:D}-{resp.StatusCode} " + msg;
+  //}
+
+  //# AOP with Decorator
+  async Task CatchHandling(Func<Task> action)
+  {
+    try
+    {
+      f_loading = true;
+      errMsg = string.Empty;
+      await action();
+    }
+    catch (ApiException ex)
+    {
+      if (ex.StatusCode == HttpStatusCode.BadRequest)
+      {
+        var msg = await ex.GetContentAsAsync<ErrMsg>();
+        errMsg = $"ApiException: {msg.Severity}-{msg.Message}";
+      }
+      else
+      {
+        errMsg = $"ApiException: {ex.StatusCode:D}-{ex.StatusCode} {ex.Message}";
+      }
+    }
+    catch (Exception ex)
+    {
+      errMsg = "EXCEPTION: " + ex.Message;
+    }
+    finally
+    {
+      f_loading = false;
+    }
+  }
+}
+
