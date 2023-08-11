@@ -3,6 +3,10 @@
    
 還有第二篇 **[README_Client Auth.md](README_Client%20Auth.md)** 是關於前端授權管制的說明。
 
+
+### 補充
+2023/8/11 增加下載上傳檔案範例，參考：[Refit 使用紀錄II - 下載上傳檔案](https://rely-ky.gitbook.io/gitbook2/refit-shi-yong-ji-lu-ii-xia-zai-shang-chuan-dang-an)
+
 # 主要模組用途簡述
 * .NET6: 執行平台
 * WASM: 系統框架
