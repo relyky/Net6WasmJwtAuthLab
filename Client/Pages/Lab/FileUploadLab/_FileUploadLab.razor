@@ -50,7 +50,9 @@
       @foreach (var item in uploadResults)
       {
         <li>
-          Upload file: @item.FileName => @item.StoredFileName
+          Upload file: @item.FileName <br/>
+          <span style="margin-left:2em;">@item.StoredFileName</span><br />
+          <span style="margin-left:2em;">@item.ContentType</span>
         </li>
       }
     </ul>
