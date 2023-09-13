@@ -15,7 +15,8 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 //## for Authentication & Authorization
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+// â€» è¨»å†Š AuthenticationStateProvider æ™‚ç”¨ Singleton å¦å‰‡ç™»å…¥ç‹€æ…‹ AuthenticationState åªæœ‰åœ¨ page è¼‰å…¥æ™‚æ‰æœƒè§¸ç™¼ç•«é¢åˆ·æ–°ã€‚
+builder.Services.AddSingleton<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddAuthorizationCore();
 
 builder.Services.AddMudServices();
@@ -23,19 +24,19 @@ builder.Services.AddBlazoredSessionStorageAsSingleton();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddTransient<AuthHeaderHandler>();
 
-//## µù¥U¡G«È»sªA°È
+//## è¨»å†Šï¼šå®¢è£½æœå‹™
 builder.Services.AddScoped<JSInterOpService>();
 
-//## µù¥U RefitClient API¡C --- °»´ú¥ş³¡ªº Refit API ¨Ãµù¥U
+//## è¨»å†Š RefitClient APIã€‚ --- åµæ¸¬å…¨éƒ¨çš„ Refit API ä¸¦è¨»å†Š
 var asm = Assembly.GetAssembly(typeof(App));
 foreach (var refitClientType in asm!.GetTypes().Where(c => c.Namespace == "SmallEco.Client.RefitClient" && c.IsInterface && c.Name.EndsWith("Api")))
 {
   builder.Services.AddRefitClient(refitClientType)
     .ConfigureHttpClient(http => http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
-    .AddHttpMessageHandler<AuthHeaderHandler>(); // ±N¥[¤J Bearer Token
+    .AddHttpMessageHandler<AuthHeaderHandler>(); // å°‡åŠ å…¥ Bearer Token
 }
 
-////## µù¥U RefitClient API¡C --- ¤â°Ê¤@­Ó¤@­Óµù¥U
+////## è¨»å†Š RefitClient APIã€‚ --- æ‰‹å‹•ä¸€å€‹ä¸€å€‹è¨»å†Š
 //builder.Services
 //    .AddRefitClient<SmallEco.Client.RefitClient.ITodoApi>()
 //    .ConfigureHttpClient(http => http.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
