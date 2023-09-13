@@ -50,10 +50,12 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 ```csharp
 
 //## for Authentication & Authorization
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddSingleton<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddAuthorizationCore();
 
-```
+``` 
+> ※注意：註冊 AuthenticationStateProvider 時用 Singleton 否則登入狀態 AuthenticationState 只有在 page 載入時才會觸發更新。   
+> 參考：[Blazor Client (Web Assembly) AuthenticationState updates only after page reloading](https://stackoverflow.com/questions/59909081/blazor-client-web-assembly-authenticationstate-updates-only-after-page-reloadi)
 
 # 前端：登入與登出介面
 登入的後端動作就是產生 JWT Bearer token，這與前端相同不再說明。   
