@@ -19,6 +19,13 @@
     <MudProgressLinear Color=Color.Info Class="my-1" Indeterminate />
   }
 
+  @if(errMsg != null)
+  {
+    <MudAlert Severity=Severity.Error>
+      @errMsg
+    </MudAlert>
+  }
+
   @if (dataList != null)
   {
     <MudSimpleTable>
@@ -49,6 +56,7 @@
 @code {
   List<WeatherForecast>? dataList;
   bool f_loading = false;
+  string? errMsg = null;
 
   protected override async Task OnInitializedAsync()
   {
@@ -57,12 +65,21 @@
 
   async Task HandleQuery()
   {
-    f_loading = true;
+    try
+    {
+      errMsg = null;
+      f_loading = true;
 
-    // await Task.Delay(500);
-    dataList = await bizApi.WeatherForecastAsync();
-    //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
-
-    f_loading = false;
+      dataList = await bizApi.WeatherForecastAsync();
+      //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+    }
+    catch(Exception ex)
+    {
+      errMsg = ex.Message;
+    }
+    finally
+    {
+      f_loading = false;
+    }
   }
 }

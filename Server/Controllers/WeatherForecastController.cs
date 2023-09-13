@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmallEco.DTO;
+using SmallEco.Models;
 
 namespace SmallEco.Server.Controllers
 {
   [ApiController]
   [Route("[controller]")]
+  [Authorize(IdentityAttr.AdminPolicyName)]
   public class WeatherForecastController : ControllerBase
   {
     private static readonly string[] Summaries = new[]
