@@ -54,7 +54,7 @@ builder.Services.AddSingleton<AuthenticationStateProvider, CustomAuthenticationS
 builder.Services.AddAuthorizationCore();
 
 ``` 
-> ※注意：註冊 AuthenticationStateProvider 時用 Singleton 否則登入狀態 AuthenticationState 只有在 page 載入時才會觸發更新。   
+> ※注意：註冊 AuthenticationStateProvider 時用 Singleton 否則登入狀態 AuthenticationState 只有在 page 載入時才會觸發畫面刷新，誤以為 NotifyAuthenticationStateChanged() 通告無效。。   
 > 參考：[Blazor Client (Web Assembly) AuthenticationState updates only after page reloading](https://stackoverflow.com/questions/59909081/blazor-client-web-assembly-authenticationstate-updates-only-after-page-reloadi)
 
 # 前端：登入與登出介面
